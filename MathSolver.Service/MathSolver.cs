@@ -3,28 +3,36 @@ namespace MathSolver.Service;
 public class MathSolver
 {
     private readonly string _inputFilePath;
+    public string OutputFilePath { get; set; }
     
     public MathSolver(string inputFilePath)
     {
         _inputFilePath = inputFilePath;
+        OutputFilePath = _inputFilePath.Replace(".txt", "-Solution.txt");
     }
     
     public void ProcessFile()
     {
+        int lineNumber = 0;
+
         try
         {
-            using StreamReader reader = new StreamReader(_inputFilePath);
-            using StreamWriter writer = new StreamWriter(_inputFilePath.Replace(".txt", "-Solution.txt"));
-            string line;
+            using StreamReader reader = new(_inputFilePath);
+            using StreamWriter writer = new(OutputFilePath);
+            string? line;
             while ((line = reader.ReadLine()) is not null)
             {
+                lineNumber++;
                 writer.WriteLine($"{line} {Solve(line)}");
             }
         }
+        catch (FileNotFoundException e)
+        {
+            throw new FileNotFoundException("File could not be found. Please ensure correct file path is used.");
+        }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            throw new Exception($"Error encountered on line {lineNumber}: {e.Message}");
         }
     }
     
